@@ -1,0 +1,55 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Unzip project
+      run: |
+        unzip -o grocery_debt_app.zip
+        if [ -d "smart_grocery_debt_app" ]; then
+          cp -r smart_grocery_debt_app/* .
+          cp -r smart_grocery_debt_app/.* . 2>/dev/null || true
+        fi
+
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Set up Python & prepare android
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    - run: |
+        if [ -f "tools/prepare_android.py" ]; then
+          python tools/prepare_android.py
+        fi
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.22.x'
+        channel: 'stable'
+
+    - name: Get dependencies
+      run: flutter pub get
+
+    - name: Build APK
+      run: flutter build apk --release
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: Smart-Grocery-Debt-App
+        path: build/app/outputs/flutter-apk/app-release.apk
