@@ -43,11 +43,8 @@ jobs:
         flutter-version: '3.22.x'
         channel: 'stable'
 
-    - name: Fix SDK version & Get dependencies
-      run: |
-        find . -name "pubspec.yaml" -exec sed -i 's/>=3.12.0/>=3.0.0/g' {} +
-        find . -name "pubspec.yaml" -exec sed -i 's/>=3.10.0/>=3.0.0/g' {} +
-        flutter pub get
+    - name: Get dependencies
+      run: flutter pub get
 
     - name: Build APK
       run: flutter build apk --release
